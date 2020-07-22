@@ -4,13 +4,21 @@ import random
 
 rows = 10
 columns = 10
+number_of_mines = 10
 
-def load_mines(number_of_mines = 15):
+def load_mines(number_of_mines):
     mine_cells = list(range(rows*columns))
     mine_cells[0:number_of_mines] =[1] * number_of_mines
     mine_cells[number_of_mines:] = [0] * (len(mine_cells)-number_of_mines)
     random.shuffle(mine_cells)
     random.shuffle(mine_cells)
+    for i in range(0,rows):
+            li=[]
+            for j in range(0,columns):
+
+                li.append(mine_cells[rows*i+j])
+            
+            print(li)    
 
     mine_counts=[]
     for i in range(0,rows):
@@ -83,12 +91,19 @@ def load_mines(number_of_mines = 15):
         else:
             mine_cells[i]=mine_counts[i]
             
-          
+    print('\n')
+    for i in range(0,rows):
+            li=[]
+            for j in range(0,columns):
+
+                li.append(mine_cells[rows*i+j])
+            
+            print(li)            
+                      
     return mine_cells,mine_counts
-    
 
 def label_to_button(i,j):
-
+    
     if mine_cells[10*i+j] == 'b':
         
         for k in range(0,rows):
@@ -99,7 +114,8 @@ def label_to_button(i,j):
                     mine_counts[rows*k+l]="revealed"  
                 Label(window, width=3, text="x".center(10), bg='red').grid(row=i,column=j)
         window.update_idletasks()     
-        messageanswer=messagebox.askquestion("Game over ")
+        messagebox.showinfo(title="lose Game",message="Game lost!! you got the wrong block..")
+        return
         
     elif mine_cells[10*i+j] != 0 and mine_cells[10*i+j] != 'b':
         Label(window, width=3, text=str(mine_counts[rows*i+j]).center(10)).grid(row=i,column=j)
@@ -107,9 +123,7 @@ def label_to_button(i,j):
         btn[rows*i+j].destroy()        
         
     elif mine_counts[10*i+j] == 0:
-        # Label(window, width=3, bg='blue',text="r".center(10)).grid(row=i,column=j)
-        # btn[rows*i+j].destroy()     
-        # rev[10*i+j]='r'
+        
 
         def surroundings(i,j):
             surr=[]
@@ -189,27 +203,46 @@ def label_to_button(i,j):
                     for cell in surr:
                         clear_tile(cell)
         clear_tile([rows*i+j,i,j])
-        
-        
+    
+    win_count=0
+    for check_win in range(0,rows*columns):
+            if mine_counts[check_win]!='b' and rev[check_win]=='r':
+                win_count+=1
+    if win_count == (rows*columns)-number_of_mines:
+                        window.update_idletasks()     
+                        messageanswer=messagebox.showinfo(title="Win Game",message="You swept all the mines ")
+    
 btn=[]
 window = Tk()
 window.title("Minesweeper")
-# for i in range(0,rows):
-#     for j in range(0,columns):
-#         btn.append(Button(window, width=3, command=lambda c=i,d=j: label_to_button(c,d)))
-#         btn[rows*i+j].grid(row=i,column=j)
+
+def right_click(event,s):
+    
+    event.widget.configure(text="F".center(10),bg='black',fg="orange",font=("bold"))
+    flag[rows*s[0]+s[1]]='f'            
+
+def left_click(event,s):
+    c=s[0]
+    d=s[1]
+    event.widget.configure(bg="red")
+    label_to_button(c,d)
 
 for i in range(0,rows):
     for j in range(0,columns):
-        bt=Button(window, width=3, command=lambda c=i,d=j: label_to_button(c,d))
+        bt=Button(window, width=3)
         btn.append(bt)
-        
+        d=[i,j]        
+        bt.bind("<Button-2>", lambda event,s=d: right_click(event,s))
+        bt.bind("<Button-3>", lambda event,s=d: right_click(event,s))        
+        bt.bind("<Button-1>", lambda event,s=d: left_click(event,s))       
         btn[rows*i+j].grid(row=i,column=j)
-
-
-mine_cells,mine_counts = load_mines()
-rev=list(range(len(mine_cells)))
+   
+mine_cells,mine_counts = load_mines(number_of_mines)
+rev=list(range(0,rows*columns))
 rev[:]=['nr']*len(rev)
+
+flag=list(range(0,rows*columns))
+flag[:]=['nf']*len(flag)
 
 window.mainloop()
                 
