@@ -9,6 +9,12 @@ from tkinter import messagebox
 import random
 #from tkinter import PhotoImage
 import time
+import win32gui
+import win32con
+
+
+# The_program_to_hide = win32gui.GetForegroundWindow()
+# win32gui.ShowWindow(The_program_to_hide , win32con.SW_HIDE)
 
 class Minesweeper():
     
@@ -105,6 +111,8 @@ class Minesweeper():
     def left_click(self,event,position):
         row = position[0]
         column = position[1]
+        if self.flag[self.rows*row+column]=='f':
+            return
         self.label_to_button(row,column)
         
     def right_click(self,event,position):
@@ -123,7 +131,7 @@ class Minesweeper():
         elif self.revealed[self.rows*row+column] != 'r':
             if self.flag_count==0:
                 return
-            event.widget.configure(bg="#808080")
+            event.widget.configure(bg="#808080", state=DISABLED)
             self.flag[self.rows*position[0]+position[1]]='f'
             self.flag_count-=1
             #this is for upper frame            
